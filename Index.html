@@ -1,0 +1,1306 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Froggy Math Jumps - Media Pembelajaran SD Kelas 2</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts: Fredoka & Plus Jakarta Sans for friendly educational typography -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&family=Plus+Jakarta+Sans:wght@600;800;900&display=swap" rel="stylesheet">
+    
+    <style>
+        body {
+            font-family: 'Fredoka', 'Plus Jakarta Sans', sans-serif;
+            user-select: none;
+            -webkit-user-select: none;
+            touch-action: manipulation;
+            overflow-x: hidden;
+            background: linear-gradient(135deg, #38bdf8 0%, #0ea5e9 50%, #0284c7 100%);
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-8px) rotate(1deg); }
+        }
+
+        @keyframes bobbing {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-4px); }
+        }
+
+        @keyframes floatText {
+            0% { opacity: 1; transform: translateY(0) scale(1); }
+            50% { opacity: 1; transform: translateY(-30px) scale(1.2); }
+            100% { opacity: 0; transform: translateY(-50px) scale(0.9); }
+        }
+
+        @keyframes frogSink {
+            0% { transform: translateY(0) scale(1); opacity: 1; }
+            50% { transform: translateY(20px) scale(0.8) rotate(15deg); opacity: 0.7; }
+            100% { transform: translateY(50px) scale(0.3) rotate(45deg); opacity: 0; }
+        }
+
+        .animate-float { animation: float 4s ease-in-out infinite; }
+        .animate-bobbing { animation: bobbing 2.5s ease-in-out infinite; }
+        
+        .floating-text-correct {
+            animation: floatText 1.2s ease-out forwards;
+            color: #22c55e;
+            text-shadow: 0 4px 10px rgba(0,0,0,0.2);
+        }
+
+        .floating-text-wrong {
+            animation: floatText 1.2s ease-out forwards;
+            color: #ef4444;
+            text-shadow: 0 4px 10px rgba(0,0,0,0.2);
+        }
+
+        .frog-sinking {
+            animation: frogSink 0.8s ease-in forwards;
+        }
+
+        /* ========================================================== */
+        /* GLOBAL GRASS SWAYING ANIMATION ARCHITECTURE                */
+        /* ========================================================== */
+        @keyframes grassSway1 {
+            0%, 100% { transform: rotate(0deg); }
+            50% { transform: rotate(6deg); }
+        }
+
+        @keyframes grassSway2 {
+            0%, 100% { transform: rotate(0deg); }
+            50% { transform: rotate(-7deg); }
+        }
+
+        @keyframes grassSway3 {
+            0%, 100% { transform: rotate(0deg); }
+            50% { transform: rotate(4.5deg); }
+        }
+
+        .sway-grass-1 {
+            transform-origin: bottom center;
+            animation: grassSway1 4.2s ease-in-out infinite;
+        }
+
+        .sway-grass-2 {
+            transform-origin: bottom center;
+            animation: grassSway2 5.5s ease-in-out infinite;
+        }
+
+        .sway-grass-3 {
+            transform-origin: bottom center;
+            animation: grassSway3 3.8s ease-in-out infinite;
+        }
+
+        @keyframes leafSuccess {
+            0% { transform: scale(1); }
+            40% { transform: scale(1.18) rotate(-3deg); filter: drop-shadow(0 0 12px rgba(34, 197, 94, 0.8)); }
+            80% { transform: scale(1.08) rotate(2deg); }
+            100% { transform: scale(1); }
+        }
+
+        @keyframes leafFail {
+            0% { transform: scale(1); }
+            25% { transform: scale(0.92) rotate(-6deg); }
+            50% { transform: scale(1.05) rotate(6deg); }
+            75% { transform: scale(0.95) rotate(-3deg); }
+            100% { transform: scale(1); }
+        }
+
+        section#screen-gameplay {
+            background: transparent !important;
+        }
+
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.22);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            border: 2px solid rgba(255, 255, 255, 0.65);
+            box-shadow: 0 10px 30px 0 rgba(2, 132, 199, 0.18);
+        }
+
+        .glass-header {
+            background: rgba(255, 255, 255, 0.82);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            border: 1px solid rgba(255, 255, 255, 0.8);
+        }
+
+        /* ========================================================== */
+        /* ISOLATED MODE STYLING ARCHITECTURE                          */
+        /* ========================================================== */
+
+        /* SQUAD MODE (PRESERVED EXACTLY AS REQUESTED) */
+        .squad-mode .player-header {
+            font-size: clamp(7px, 0.75vw, 11px);
+            white-space: nowrap;
+        }
+
+        .squad-mode .score-badge {
+            font-size: clamp(7px, 0.75vw, 10px);
+            padding: 0.1rem 0.25rem;
+            white-space: nowrap;
+        }
+
+        .squad-mode .question-counter {
+            font-size: clamp(9px, 0.9vw, 11px);
+        }
+
+        .squad-mode .math-question {
+            font-size: clamp(1.2rem, 2.2vw, 1.8rem);
+        }
+
+        .squad-mode .answers-grid-container {
+            gap: 8px 10px;
+            max-width: 200px;
+        }
+
+        .squad-mode .lily-choice-btn {
+            width: clamp(48px, 5.5vw, 68px);
+            height: clamp(34px, 3.8vw, 48px);
+        }
+
+        .squad-mode .lily-choice-btn span {
+            font-size: clamp(1rem, 1.6vw, 1.4rem);
+        }
+
+        .squad-mode .frog-arena-container {
+            min-height: 75px;
+            padding-bottom: 0.25rem !important;
+        }
+
+        .squad-mode .frog-platform-wrapper {
+            width: clamp(90px, 11vw, 130px);
+            height: clamp(50px, 6vw, 70px);
+            margin-bottom: 0px !important;
+        }
+
+        .squad-mode .frog-character {
+            width: clamp(38px, 4.8vw, 56px);
+            height: clamp(38px, 4.8vw, 56px);
+            top: -24px !important;
+        }
+
+        /* DUEL MODE (PRESERVED EXACTLY AS REQUESTED) */
+        .duel-mode .player-header {
+            font-size: clamp(13px, 1.4vw, 17px);
+            white-space: nowrap;
+        }
+
+        .duel-mode .score-badge {
+            font-size: clamp(12px, 1.3vw, 15px);
+            padding: 0.25rem 0.75rem;
+        }
+
+        .duel-mode .question-counter {
+            font-size: clamp(11px, 1.2vw, 14px);
+        }
+
+        .duel-mode .math-question {
+            font-size: clamp(1.8rem, 3vw, 2.6rem);
+        }
+
+        .duel-mode .answers-grid-container {
+            gap: 12px 16px;
+            max-width: 320px;
+        }
+
+        .duel-mode .lily-choice-btn {
+            width: clamp(90px, 10vw, 140px);
+            height: clamp(56px, 6vw, 78px);
+        }
+
+        .duel-mode .lily-choice-btn span {
+            font-size: clamp(1.5rem, 2.2vw, 2.1rem);
+        }
+
+        .duel-mode .frog-arena-container {
+            min-height: 110px;
+        }
+
+        .duel-mode .frog-platform-wrapper {
+            width: clamp(150px, 16vw, 200px);
+            height: clamp(80px, 9vw, 105px);
+        }
+
+        .duel-mode .frog-character {
+            width: clamp(65px, 7.5vw, 95px);
+            height: clamp(65px, 7.5vw, 95px);
+            top: -42px !important;
+        }
+
+        /* SOLO MODE (PERFECTED POSITION & SPACING AS REQUESTED) */
+        .solo-mode .player-header {
+            font-size: clamp(14px, 1.6vw, 18px);
+            white-space: nowrap;
+        }
+
+        .solo-mode .score-badge {
+            font-size: clamp(13px, 1.4vw, 16px);
+            padding: 0.25rem 0.85rem;
+            white-space: nowrap;
+        }
+
+        .solo-mode .question-counter {
+            font-size: clamp(12px, 1.3vw, 15px);
+        }
+
+        .solo-mode .math-question {
+            font-size: clamp(2.2rem, 3.8vw, 3.4rem);
+        }
+
+        .solo-mode .answers-grid-container {
+            gap: 14px 20px;
+            max-width: 380px;
+        }
+
+        .solo-mode .lily-choice-btn {
+            width: clamp(110px, 12vw, 160px);
+            height: clamp(68px, 7.5vw, 90px);
+        }
+
+        .solo-mode .lily-choice-btn span {
+            font-size: clamp(2rem, 2.8vw, 2.6rem);
+        }
+
+        .solo-mode .frog-arena-container {
+            min-height: 130px;
+            padding-bottom: 1.5rem !important;
+        }
+
+        .solo-mode .frog-platform-wrapper {
+            width: clamp(170px, 18vw, 220px);
+            height: clamp(90px, 10vw, 115px);
+            margin-bottom: 0.75rem !important;
+        }
+
+        .solo-mode .frog-character {
+            width: clamp(75px, 8.5vw, 105px);
+            height: clamp(75px, 8.5vw, 105px);
+            top: -55px !important;
+        }
+
+        /* Canvas styling for rain and water ripples */
+        #rain-canvas {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 5;
+        }
+
+        /* Global Pond Grass Footer Background */
+        .global-pond-grass {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 55px;
+            pointer-events: none;
+            z-index: 4;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            padding: 0 1rem;
+            overflow: hidden;
+            opacity: 0.88;
+        }
+    </style>
+</head>
+<body class="w-screen h-screen overflow-hidden text-slate-800 flex flex-col justify-between select-none">
+
+    <div class="fixed inset-0 bg-gradient-to-b from-sky-400 via-sky-300 to-cyan-500 z-0 pointer-events-none overflow-hidden">
+        <div class="absolute -top-20 left-1/2 -translate-x-1/2 w-[700px] h-[350px] bg-white/30 blur-3xl rounded-full"></div>
+        <canvas id="rain-canvas"></canvas>
+        <div class="absolute bottom-10 left-10 w-32 h-12 border-2 border-white/40 rounded-full animate-ping opacity-35"></div>
+        <div class="absolute top-1/3 right-12 w-48 h-16 border-2 border-white/40 rounded-full animate-ping opacity-30" style="animation-delay: 1s;"></div>
+        
+        <!-- GLOBAL POND GRASS CONTAINER (PRESENT ACROSS ALL SCREENS & MODES) -->
+        <div class="global-pond-grass">
+            <div class="flex space-x-1 items-end">
+                <svg viewBox="0 0 45 45" class="w-8 h-8 sm:w-12 sm:h-12 sway-grass-1"><path d="M 22 45 Q 22 20 8 5 Q 18 22 28 45 Z" fill="#15803d"/><path d="M 30 45 Q 32 18 42 8 Q 32 25 33 45 Z" fill="#22c55e"/></svg>
+                <svg viewBox="0 0 45 45" class="w-10 h-10 sm:w-14 sm:h-14 sway-grass-2"><path d="M 20 45 Q 15 15 5 2 Q 18 20 27 45 Z" fill="#16a34a"/><path d="M 28 45 Q 25 12 18 4 Q 28 22 34 45 Z" fill="#4ade80"/></svg>
+                <svg viewBox="0 0 45 45" class="w-7 h-7 sm:w-10 sm:h-10 sway-grass-3"><path d="M 22 45 Q 25 18 35 6 Q 22 25 18 45 Z" fill="#15803d"/></svg>
+            </div>
+            <div class="hidden sm:flex space-x-1 items-end">
+                <svg viewBox="0 0 45 45" class="w-9 h-9 sm:w-13 sm:h-13 sway-grass-3"><path d="M 20 45 Q 12 18 4 4 Q 16 22 26 45 Z" fill="#16a34a"/><path d="M 28 45 Q 30 20 38 10 Q 30 28 32 45 Z" fill="#22c55e"/></svg>
+                <svg viewBox="0 0 45 45" class="w-8 h-8 sm:w-11 sm:h-11 sway-grass-1"><path d="M 22 45 Q 25 15 32 3 Q 20 22 18 45 Z" fill="#15803d"/></svg>
+            </div>
+            <div class="flex space-x-1 items-end">
+                <svg viewBox="0 0 45 45" class="w-9 h-9 sm:w-13 sm:h-13 sway-grass-2"><path d="M 22 45 Q 20 16 10 4 Q 22 22 30 45 Z" fill="#15803d"/><path d="M 32 45 Q 35 15 42 5 Q 30 25 34 45 Z" fill="#4ade80"/></svg>
+                <svg viewBox="0 0 45 45" class="w-10 h-10 sm:w-15 sm:h-15 sway-grass-1"><path d="M 25 45 Q 20 12 12 2 Q 22 20 32 45 Z" fill="#16a34a"/><path d="M 15 45 Q 10 20 2 10 Q 14 25 20 45 Z" fill="#22c55e"/></svg>
+            </div>
+        </div>
+    </div>
+
+    <div id="app-root" class="relative z-10 w-full h-full flex flex-col justify-between max-w-7xl mx-auto p-2 sm:p-3">
+
+        <header class="w-full flex items-center justify-between py-1.5 px-3 sm:px-4 bg-white/75 backdrop-blur-md rounded-2xl border border-white/80 shadow-lg z-30 shrink-0">
+            <div class="flex items-center space-x-2 cursor-pointer" onclick="showScreen('screen-menu')">
+                <div class="w-8 h-8 rounded-full bg-emerald-400 border-2 border-white flex items-center justify-center text-lg shadow-md">
+                    🐸
+                </div>
+                <div>
+                    <h1 class="font-black text-base sm:text-lg text-slate-800 drop-shadow-sm leading-none">Froggy Math Jumps</h1>
+                    <span class="text-[10px] sm:text-xs font-bold text-emerald-700">Kelas 2 SD • Perkalian & Pembagian</span>
+                </div>
+            </div>
+
+            <div class="flex items-center space-x-1.5 sm:space-x-2">
+                <button onclick="confirmReturnHome()" title="Kembali ke Menu Utama" class="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-white hover:bg-sky-50 active:scale-95 flex items-center justify-center text-slate-700 font-bold shadow-md transition border border-sky-100">
+                    🏠
+                </button>
+                
+                <button onclick="toggleHowToPlayModal()" title="Cara Bermain" class="px-2.5 py-1.5 rounded-xl bg-amber-400 hover:bg-amber-300 active:scale-95 text-slate-900 font-bold text-xs sm:text-sm shadow-md transition border border-amber-200 flex items-center space-x-1">
+                    <span>❓</span>
+                    <span class="hidden md:inline">Petunjuk</span>
+                </button>
+
+                <button id="btn-audio-global" onclick="toggleAudio()" title="Suara / Musik" class="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-white hover:bg-sky-50 active:scale-95 flex items-center justify-center text-slate-700 font-bold shadow-md transition border border-sky-100">
+                    <span id="audio-icon-global">🔊</span>
+                </button>
+
+                <button onclick="toggleFullScreen()" title="Layar Penuh" class="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-sky-500 hover:bg-sky-400 active:scale-95 flex items-center justify-center text-white font-bold shadow-md transition border border-sky-300">
+                    ⛶
+                </button>
+            </div>
+        </header>
+
+        <section id="screen-menu" class="w-full flex-1 flex items-center justify-center p-2 sm:p-4 my-auto">
+            <div class="relative w-full max-w-3xl bg-white/90 backdrop-blur-md rounded-[2rem] sm:rounded-[2.5rem] shadow-[0_15px_35px_rgba(2,132,199,0.25)] border-4 border-white p-4 sm:p-6 md:p-8 flex flex-col items-center">
+                
+                <h2 class="text-slate-800 font-black text-xl sm:text-2xl md:text-3xl tracking-wide text-center mb-3 sm:mb-4">
+                    Pilih mode game Kamu!
+                </h2>
+
+                <div class="flex flex-row items-center justify-center gap-4 sm:gap-8 md:gap-10 w-full max-w-2xl">
+                    
+                    <div class="flex flex-col items-center justify-center text-center shrink-0 w-[190px] sm:w-[230px] md:w-[250px]">
+                        <div class="flex flex-col items-center mb-0.5 select-none">
+                            <div class="font-black text-2xl sm:text-3xl lg:text-4xl tracking-wider text-[#facc15] drop-shadow-[0_3px_0_#15803d] uppercase leading-none" style="-webkit-text-stroke: 1.2px #15803d;">
+                                KATAK
+                            </div>
+                            <div class="font-black text-xl sm:text-2.5xl lg:text-3.5xl tracking-wider text-[#4ade80] drop-shadow-[0_3px_0_#14532d] uppercase leading-none pl-2" style="-webkit-text-stroke: 1.2px #14532d;">
+                                LOMPAT
+                            </div>
+                        </div>
+
+                        <div class="w-full relative animate-float mt-0.5 mx-auto">
+                            <svg viewBox="0 0 400 280" class="w-full h-auto drop-shadow-md">
+                                <ellipse cx="200" cy="210" rx="150" ry="45" fill="none" stroke="#7dd3fc" stroke-width="3.5" opacity="0.75" />
+                                <ellipse cx="200" cy="210" rx="110" ry="32" fill="none" stroke="#bae6fd" stroke-width="3" opacity="0.85" />
+                                
+                                <g transform="translate(10, -10)">
+                                    <path d="M 80 215 C 80 175, 290 175, 300 215 C 310 255, 90 265, 80 215 Z" fill="#86efac" stroke="#16a34a" stroke-width="4.5" />
+                                    <polygon points="190,215 295,195 300,215" fill="#e0f2fe" opacity="0.6" />
+                                    <path d="M 190 215 L 95 220 M 190 215 L 140 190 M 190 215 L 240 190" stroke="#15803d" stroke-width="2.5" stroke-linecap="round" opacity="0.5" />
+                                </g>
+
+                                <g transform="translate(60, 185) scale(0.75)">
+                                    <path d="M0 -20 C-10 -10 -20 0 0 10 C20 0 10 -10 0 -20 Z" fill="#f472b6"/>
+                                    <path d="M-15 -10 C-20 5 -5 15 0 10 C-5 -5 -10 -10 -15 -10 Z" fill="#f472b6"/>
+                                    <path d="M15 -10 C20 5 5 15 0 10 C5 -5 10 -10 15 -10 Z" fill="#f472b6"/>
+                                    <circle cx="0" cy="5" r="5" fill="#facc15" />
+                                </g>
+
+                                <g transform="translate(320, 195) scale(0.65)">
+                                    <path d="M0 -20 C-10 -10 -20 0 0 10 C20 0 10 -10 0 -20 Z" fill="#f472b6"/>
+                                    <path d="M-15 -10 C-20 5 -5 15 0 10 C-5 -5 -10 -10 -15 -10 Z" fill="#f472b6"/>
+                                    <path d="M15 -10 C20 5 5 15 0 10 C5 -5 10 -10 15 -10 Z" fill="#f472b6"/>
+                                    <circle cx="0" cy="5" r="5" fill="#facc15" />
+                                </g>
+
+                                <g transform="translate(115, 60)">
+                                    <path d="M 55 110 Q 25 140 15 110 Q 35 90 65 95" fill="#22c55e" stroke="#15803d" stroke-width="3"/>
+                                    <path d="M 115 70 Q 165 30 185 50 Q 155 80 125 85" fill="#22c55e" stroke="#15803d" stroke-width="3"/>
+                                    
+                                    <ellipse cx="95" cy="85" rx="46" ry="33" fill="#4ade80" stroke="#15803d" stroke-width="3.5" transform="rotate(-15 95 85)" />
+                                    <ellipse cx="97" cy="92" rx="30" ry="20" fill="#fef08a" transform="rotate(-15 97 92)" />
+
+                                    <path d="M 65 90 Q 35 100 30 115" stroke="#15803d" stroke-width="6.5" stroke-linecap="round" fill="none" />
+                                    <path d="M 115 75 Q 135 85 150 75" stroke="#15803d" stroke-width="6.5" stroke-linecap="round" fill="none" />
+
+                                    <ellipse cx="70" cy="55" rx="33" ry="25" fill="#4ade80" stroke="#15803d" stroke-width="3.5" transform="rotate(-10 70 55)" />
+                                    <circle cx="53" cy="38" r="12" fill="#4ade80" stroke="#15803d" stroke-width="2.5" />
+                                    <circle cx="53" cy="38" r="8" fill="#ffffff" />
+                                    <circle cx="55" cy="38" r="4.5" fill="#0f172a" />
+                                    
+                                    <circle cx="82" cy="42" r="12" fill="#4ade80" stroke="#15803d" stroke-width="2.5" />
+                                    <circle cx="82" cy="42" r="8" fill="#ffffff" />
+                                    <circle cx="84" cy="42" r="4.5" fill="#0f172a" />
+
+                                    <path d="M 48 62 Q 67 80 85 62" fill="#ef4444" stroke="#0f172a" stroke-width="3" />
+                                    <circle cx="43" cy="58" r="4.5" fill="#f472b6" opacity="0.85" />
+                                    <circle cx="90" cy="60" r="4.5" fill="#f472b6" opacity="0.85" />
+                                </g>
+                            </svg>
+                        </div>
+                    </div>
+
+                    <div class="flex flex-col space-y-3 shrink-0 w-[230px] sm:w-[270px] md:w-[300px]">
+                        <button onclick="startGame('solo')" class="w-full h-[56px] sm:h-[62px] px-6 rounded-full bg-[#22c55e] hover:bg-[#16a34a] active:scale-95 text-white font-black text-lg sm:text-xl shadow-[0_4px_0_#15803d] transition-all flex items-center justify-center space-x-3 group border border-emerald-300">
+                            <span class="text-2xl group-hover:scale-110 transition-transform">👤</span>
+                            <span class="tracking-wide">Solo Mode</span>
+                        </button>
+
+                        <button onclick="startGame('duel')" class="w-full h-[56px] sm:h-[62px] px-6 rounded-full bg-[#3b82f6] hover:bg-[#2563eb] active:scale-95 text-white font-black text-lg sm:text-xl shadow-[0_4px_0_#1d4ed8] transition-all flex items-center justify-center space-x-3 group border border-blue-300">
+                            <span class="text-2xl group-hover:scale-110 transition-transform">⚔️</span>
+                            <span class="tracking-wide">Duel Mode</span>
+                        </button>
+
+                        <button onclick="startGame('squad')" class="w-full h-[56px] sm:h-[62px] px-6 rounded-full bg-[#f59e0b] hover:bg-[#d97706] active:scale-95 text-white font-black text-lg sm:text-xl shadow-[0_4px_0_#b45309] transition-all flex items-center justify-center space-x-3 group border border-amber-300">
+                            <span class="text-2xl group-hover:scale-110 transition-transform">🧑‍🤝‍🧑</span>
+                            <span class="tracking-wide">Squad Mode</span>
+                        </button>
+                    </div>
+
+                </div>
+
+            </div>
+        </section>
+
+        <section id="screen-gameplay" class="hidden w-full h-full flex-1 flex flex-col justify-between my-1 overflow-hidden">
+            <div id="gameplay-grid" class="w-full h-full grid items-stretch gap-2 sm:gap-3 p-1 overflow-hidden">
+                <!-- Dynamic grid rendered here -->
+            </div>
+        </section>
+
+        <section id="screen-results" class="hidden w-full h-full flex items-center justify-center p-3 sm:p-6">
+            <div class="w-full max-w-2xl bg-white/95 backdrop-blur-md rounded-3xl shadow-2xl border-4 border-sky-300 p-6 sm:p-8 text-center flex flex-col items-center">
+                <div class="w-20 h-20 rounded-full bg-amber-100 border-4 border-amber-400 flex items-center justify-center text-4xl mb-3 animate-bounce">
+                    🏆
+                </div>
+                <h2 class="text-3xl sm:text-4xl font-black text-slate-800 mb-1">Permainan Selesai!</h2>
+                <p class="text-sm sm:text-base font-semibold text-slate-600 mb-6">Hasil Capaian Matematika Katak Lompat</p>
+
+                <div id="results-container" class="w-full grid grid-cols-1 sm:grid-cols-2 gap-4 mb-8">
+                </div>
+
+                <div class="flex flex-wrap justify-center gap-4 w-full">
+                    <button onclick="restartCurrentGame()" class="px-6 py-3.5 rounded-2xl bg-emerald-500 hover:bg-emerald-600 active:scale-95 text-white font-black text-lg shadow-[0_5px_0_#15803d] border-2 border-emerald-300 transition flex items-center space-x-2">
+                        <span>🔄</span>
+                        <span>Main Lagi</span>
+                    </button>
+                    <button onclick="showScreen('screen-menu')" class="px-6 py-3.5 rounded-2xl bg-sky-500 hover:bg-sky-600 active:scale-95 text-white font-black text-lg shadow-[0_5px_0_#0284c7] border-2 border-sky-300 transition flex items-center space-x-2">
+                        <span>📋</span>
+                        <span>Pilih Mode</span>
+                    </button>
+                </div>
+            </div>
+        </section>
+
+    </div>
+
+    <div id="modal-howto" class="hidden fixed inset-0 z-50 bg-sky-950/40 backdrop-blur-sm flex items-center justify-center p-4">
+        <div class="w-full max-w-md bg-white rounded-3xl border-4 border-amber-400 p-6 shadow-2xl relative animate-float">
+            <button onclick="toggleHowToPlayModal()" class="absolute top-4 right-4 w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 flex items-center justify-center font-bold text-slate-600">✕</button>
+            <div class="flex items-center space-x-3 mb-4">
+                <span class="text-3xl">❓</span>
+                <h3 class="text-xl font-black text-slate-800">Cara Bermain</h3>
+            </div>
+            <ul class="space-y-3 text-sm font-semibold text-slate-600 mb-6 text-left">
+                <li class="flex items-start space-x-2">
+                    <span class="text-emerald-500 font-bold">1.</span>
+                    <span>Perhatikan soal perkalian atau pembagian yang muncul di bagian atas area katak.</span>
+                </li>
+                <li class="flex items-start space-x-2">
+                    <span class="text-emerald-500 font-bold">2.</span>
+                    <span>Pilih dan tekan **daun teratai bulat** yang berisi jawaban yang kamu anggap benar.</span>
+                </li>
+                <li class="flex items-start space-x-2">
+                    <span class="text-emerald-500 font-bold">3.</span>
+                    <span>Jika **Benar**, katak mendarat dengan gembira dan mendapat **+10 Poin**!</span>
+                </li>
+                <li class="flex items-start space-x-2">
+                    <span class="text-emerald-500 font-bold">4.</span>
+                    <span>Jika **Salah**, katak akan **tenggelam ke dalam air**, lalu muncul kembali untuk mencoba soal berikutnya!</span>
+                </li>
+            </ul>
+            <button onclick="toggleHowToPlayModal()" class="w-full py-3 rounded-xl bg-amber-400 hover:bg-amber-300 text-slate-900 font-black text-base shadow-md">
+                Saya Mengerti! 👍
+            </button>
+        </div>
+    </div>
+
+    <script>
+        class SoundEngine {
+            constructor() {
+                this.ctx = null;
+                this.muted = false;
+            }
+
+            init() {
+                if (!this.ctx) {
+                    const AudioCtx = window.AudioContext || window.webkitAudioContext;
+                    this.ctx = new AudioCtx();
+                }
+                if (this.ctx.state === 'suspended') {
+                    this.ctx.resume();
+                }
+            }
+
+            playJump() {
+                if (this.muted) return;
+                this.init();
+                const now = this.ctx.currentTime;
+                const osc = this.ctx.createOscillator();
+                const gain = this.ctx.createGain();
+
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(180, now);
+                osc.frequency.exponentialRampToValueAtTime(450, now + 0.15);
+
+                gain.gain.setValueAtTime(0.3, now);
+                gain.gain.exponentialRampToValueAtTime(0.01, now + 0.15);
+
+                osc.connect(gain);
+                gain.connect(this.ctx.destination);
+                osc.start(now);
+                osc.stop(now + 0.15);
+            }
+
+            playCorrect() {
+                if (this.muted) return;
+                this.init();
+                const now = this.ctx.currentTime;
+                [523.25, 659.25, 783.99, 1046.50].forEach((freq, idx) => {
+                    const osc = this.ctx.createOscillator();
+                    const gain = this.ctx.createGain();
+                    osc.type = 'triangle';
+                    osc.frequency.setValueAtTime(freq, now + idx * 0.08);
+
+                    gain.gain.setValueAtTime(0.25, now + idx * 0.08);
+                    gain.gain.exponentialRampToValueAtTime(0.01, now + idx * 0.08 + 0.2);
+
+                    osc.connect(gain);
+                    gain.connect(this.ctx.destination);
+                    osc.start(now + idx * 0.08);
+                    osc.stop(now + idx * 0.08 + 0.2);
+                });
+            }
+
+            playSplash() {
+                if (this.muted) return;
+                this.init();
+                const now = this.ctx.currentTime;
+                
+                const bufferSize = this.ctx.sampleRate * 0.3;
+                const buffer = this.ctx.createBuffer(1, bufferSize, this.ctx.sampleRate);
+                const data = buffer.getChannelData(0);
+                for (let i = 0; i < bufferSize; i++) {
+                    data[i] = Math.random() * 2 - 1;
+                }
+
+                const noise = this.ctx.createBufferSource();
+                noise.buffer = buffer;
+
+                const filter = this.ctx.createBiquadFilter();
+                filter.type = 'lowpass';
+                filter.frequency.setValueAtTime(800, now);
+                filter.frequency.linearRampToValueAtTime(200, now + 0.3);
+
+                const gain = this.ctx.createGain();
+                gain.gain.setValueAtTime(0.4, now);
+                gain.gain.exponentialRampToValueAtTime(0.01, now + 0.3);
+
+                noise.connect(filter);
+                filter.connect(gain);
+                gain.connect(this.ctx.destination);
+                noise.start(now);
+            }
+        }
+
+        const audio = new SoundEngine();
+
+        function toggleAudio() {
+            audio.muted = !audio.muted;
+            const icon = audio.muted ? '🔇' : '🔊';
+            document.getElementById('audio-icon-global').innerText = icon;
+        }
+
+        class RainSystem {
+            constructor() {
+                this.canvas = document.getElementById('rain-canvas');
+                this.ctx = this.canvas.getContext('2d');
+                this.drops = [];
+                this.ripples = [];
+                this.maxDrops = 45;
+                this.resize();
+                window.addEventListener('resize', () => this.resize());
+            }
+
+            resize() {
+                this.width = this.canvas.width = window.innerWidth;
+                this.height = this.canvas.height = window.innerHeight;
+            }
+
+            init() {
+                this.drops = [];
+                for (let i = 0; i < this.maxDrops; i++) {
+                    this.drops.push({
+                        x: Math.random() * this.width * 1.2 - this.width * 0.1,
+                        y: Math.random() * this.height,
+                        length: 12 + Math.random() * 18,
+                        speed: 12 + Math.random() * 8,
+                        opacity: 0.2 + Math.random() * 0.4,
+                        width: 1 + Math.random() * 1.2
+                    });
+                }
+            }
+
+            addRipple(x, y, maxRadius = 22) {
+                this.ripples.push({
+                    x: x,
+                    y: y,
+                    radius: 2,
+                    maxRadius: maxRadius + Math.random() * 8,
+                    opacity: 0.75,
+                    speed: 0.6 + Math.random() * 0.4
+                });
+            }
+
+            update() {
+                this.ctx.clearRect(0, 0, this.width, this.height);
+
+                this.ctx.lineWidth = 1.2;
+                this.ctx.lineCap = 'round';
+
+                for (let i = 0; i < this.drops.length; i++) {
+                    let d = this.drops[i];
+                    d.x -= 1.8;
+                    d.y += d.speed;
+
+                    if (d.y > this.height || d.x < -50) {
+                        if (d.y >= this.height * 0.4 && Math.random() > 0.4) {
+                            this.addRipple(d.x, this.height * (0.4 + Math.random() * 0.55), 18);
+                        }
+                        d.x = Math.random() * this.width * 1.3;
+                        d.y = -20;
+                        d.speed = 12 + Math.random() * 8;
+                    }
+
+                    this.ctx.strokeStyle = `rgba(255, 255, 255, ${d.opacity})`;
+                    this.ctx.beginPath();
+                    this.ctx.moveTo(d.x, d.y);
+                    this.ctx.lineTo(d.x - 1.2, d.y + d.length);
+                    this.ctx.stroke();
+                }
+
+                for (let j = this.ripples.length - 1; j >= 0; j--) {
+                    let r = this.ripples[j];
+                    r.radius += r.speed;
+                    r.opacity -= 0.035;
+
+                    if (r.opacity <= 0 || r.radius >= r.maxRadius) {
+                        this.ripples.splice(j, 1);
+                        continue;
+                    }
+
+                    this.ctx.strokeStyle = `rgba(224, 242, 254, ${Math.max(0, r.opacity)})`;
+                    this.ctx.lineWidth = 1.5;
+                    this.ctx.beginPath();
+                    this.ctx.ellipse(r.x, r.y, r.radius, r.radius * 0.45, 0, 0, Math.PI * 2);
+                    this.ctx.stroke();
+                }
+            }
+        }
+
+        let rainSys;
+
+        function startRainLoop() {
+            rainSys = new RainSystem();
+            rainSys.init();
+
+            function animateRain() {
+                rainSys.update();
+                requestAnimationFrame(animateRain);
+            }
+            requestAnimationFrame(animateRain);
+        }
+
+        function createSplashEffect(targetElem) {
+            if (!targetElem) return;
+            const rect = targetElem.getBoundingClientRect();
+            const splashContainer = document.createElement('div');
+            splashContainer.className = 'fixed pointer-events-none z-50';
+            splashContainer.style.left = `${rect.left + rect.width / 2}px`;
+            splashContainer.style.top = `${rect.top + rect.height / 2 + 15}px`;
+
+            const ring = document.createElement('div');
+            ring.className = 'absolute -translate-x-1/2 -translate-y-1/2 w-16 h-16 border-4 border-white rounded-full animate-ping opacity-80';
+            splashContainer.appendChild(ring);
+
+            if (rainSys) {
+                rainSys.addRipple(rect.left + rect.width / 2, rect.top + rect.height / 2 + 15, 32);
+            }
+
+            for (let i = 0; i < 10; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'absolute w-3 h-3 bg-white rounded-full shadow-md';
+                const angle = (i / 10) * Math.PI * 2;
+                const distance = 25 + Math.random() * 30;
+                const tx = Math.cos(angle) * distance;
+                const ty = Math.sin(angle) * distance - 25;
+
+                particle.animate([
+                    { transform: 'translate(0px, 0px) scale(1)', opacity: 1 },
+                    { transform: `translate(${tx}px, ${ty}px) scale(0.3)`, opacity: 0 }
+                ], {
+                    duration: 550,
+                    easing: 'ease-out',
+                    fill: 'forwards'
+                });
+
+                splashContainer.appendChild(particle);
+            }
+
+            for (let b = 0; b < 5; b++) {
+                const bubble = document.createElement('div');
+                bubble.className = 'absolute text-white font-extrabold text-base select-none pointer-events-none drop-shadow-sm';
+                bubble.innerText = '○';
+                const bx = (Math.random() - 0.5) * 45;
+                const by = 10 + Math.random() * 15;
+
+                bubble.animate([
+                    { transform: `translate(${bx}px, ${by}px) scale(0.6)`, opacity: 0.95 },
+                    { transform: `translate(${bx + (Math.random() - 0.5) * 20}px, ${by - 65}px) scale(1.4)`, opacity: 0 }
+                ], {
+                    duration: 850 + b * 150,
+                    easing: 'ease-out',
+                    delay: b * 90,
+                    fill: 'forwards'
+                });
+
+                splashContainer.appendChild(bubble);
+            }
+
+            document.body.appendChild(splashContainer);
+            setTimeout(() => {
+                splashContainer.remove();
+            }, 1200);
+        }
+
+        function generateMathQuestion() {
+            const isMultiplication = Math.random() > 0.4;
+            let num1, num2, questionText, correctAnswer;
+
+            if (isMultiplication) {
+                num1 = Math.floor(Math.random() * 8) + 2;
+                num2 = Math.floor(Math.random() * 9) + 1;
+                questionText = `${num1} × ${num2} = ?`;
+                correctAnswer = num1 * num2;
+            } else {
+                num2 = Math.floor(Math.random() * 5) + 2;
+                correctAnswer = Math.floor(Math.random() * 8) + 1;
+                num1 = num2 * correctAnswer;
+                questionText = `${num1} ÷ ${num2} = ?`;
+            }
+
+            const distractors = new Set();
+            while (distractors.size < 3) {
+                let offset = (Math.floor(Math.random() * 5) + 1) * (Math.random() > 0.5 ? 1 : -1);
+                let wrongVal = correctAnswer + offset;
+                if (wrongVal > 0 && wrongVal !== correctAnswer) {
+                    distractors.add(wrongVal);
+                }
+            }
+
+            const choices = [correctAnswer, ...Array.from(distractors)];
+            for (let i = choices.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [choices[i], choices[j]] = [choices[j], choices[i]];
+            }
+
+            return {
+                questionText,
+                correctAnswer,
+                choices
+            };
+        }
+
+        let currentGameMode = 'solo';
+        let playersState = [];
+        const MAX_QUESTIONS_PER_ROUND = 10;
+
+        function startGame(mode) {
+            audio.init();
+            currentGameMode = mode;
+            let numPlayers = mode === 'solo' ? 1 : (mode === 'duel' ? 2 : 4);
+            
+            playersState = [];
+            for (let i = 0; i < numPlayers; i++) {
+                playersState.push({
+                    id: i + 1,
+                    name: `Pemain ${i + 1}`,
+                    score: 0,
+                    correctCount: 0,
+                    wrongCount: 0,
+                    questionIndex: 1,
+                    currentQ: generateMathQuestion(),
+                    isAnimating: false,
+                    frogStatus: 'idle'
+                });
+            }
+
+            renderGameplayArena();
+            showScreen('screen-gameplay');
+        }
+
+        function createLilyPadButton(playerIdx, choice) {
+            const gradId = `leafGrad-${playerIdx}-${choice}-${Math.floor(Math.random() * 10000)}`;
+            return `
+                <button onclick="handleAnswer(${playerIdx}, ${choice}, this)" 
+                    class="lily-choice-btn relative group active:scale-90 hover:scale-105 transition-all duration-200 focus:outline-none flex items-center justify-center shrink-0 cursor-pointer">
+                    
+                    <svg viewBox="0 0 140 90" class="absolute inset-0 w-full h-full drop-shadow-[0_4px_4px_rgba(2,132,199,0.3)] transition-transform group-hover:scale-105">
+                        <defs>
+                            <radialGradient id="${gradId}" cx="45%" cy="42%" r="55%">
+                                <stop offset="0%" stop-color="#a7f3d0" />
+                                <stop offset="35%" stop-color="#4ade80" />
+                                <stop offset="75%" stop-color="#16a34a" />
+                                <stop offset="100%" stop-color="#14532d" />
+                            </radialGradient>
+                        </defs>
+
+                        <ellipse cx="70" cy="83" rx="58" ry="6.5" fill="#0284c7" opacity="0.28" />
+                        <path d="M 70,42 L 88,15 C 112,20 134,35 133,55 C 132,73 108,85 70,85 C 32,85 7,72 8,52 C 9,32 38,12 68,12 Z" 
+                              fill="url(#${gradId})" 
+                              stroke="#14532d" 
+                              stroke-width="3" 
+                              stroke-linejoin="round" />
+                        <path d="M 18,32 C 34,18 56,14 68,12 M 88,15 C 110,19 128,30 130,48" 
+                              fill="none" 
+                              stroke="#ffffff" 
+                              stroke-width="2.2" 
+                              stroke-linecap="round" 
+                              opacity="0.5" />
+                        <g stroke="#14532d" stroke-width="1.6" stroke-linecap="round" opacity="0.4">
+                            <path d="M 70,42 Q 48,25 28,28" fill="none"/>
+                            <path d="M 70,42 Q 38,45 15,48" fill="none"/>
+                            <path d="M 70,42 Q 42,66 26,74" fill="none"/>
+                            <path d="M 70,42 Q 70,68 70,83" fill="none"/>
+                            <path d="M 70,42 Q 98,68 112,74" fill="none"/>
+                            <path d="M 70,42 Q 104,50 126,52" fill="none"/>
+                            <path d="M 70,42 Q 102,30 118,24" fill="none"/>
+                        </g>
+                        <circle cx="70" cy="42" r="3.5" fill="#facc15" stroke="#14532d" stroke-width="1.2" />
+                    </svg>
+
+                    <span class="relative z-10 font-black text-white drop-shadow-[0_2px_3px_rgba(0,0,0,0.85)] tracking-wide select-none">
+                        ${choice}
+                    </span>
+                </button>
+            `;
+        }
+
+        function getPlayerColorClass(idx) {
+            const colors = [
+                'bg-emerald-500',
+                'bg-blue-500',
+                'bg-amber-500',
+                'bg-purple-500'
+            ];
+            return colors[idx % colors.length];
+        }
+
+        function renderGameplayArena() {
+            const grid = document.getElementById('gameplay-grid');
+            grid.innerHTML = '';
+
+            const numPlayers = playersState.length;
+            
+            if (numPlayers === 1) {
+                grid.className = "w-full h-full flex items-center justify-center p-1 sm:p-2 overflow-hidden solo-mode";
+            } else if (numPlayers === 2) {
+                grid.className = "w-full h-full grid grid-cols-2 gap-3 sm:gap-4 items-stretch p-1 sm:p-2 overflow-hidden duel-mode";
+            } else {
+                grid.className = "w-full h-full grid grid-cols-4 gap-1.5 sm:gap-2 items-stretch p-1 overflow-hidden squad-mode";
+            }
+
+            playersState.forEach((player, idx) => {
+                const playerCard = document.createElement('div');
+                playerCard.id = `player-card-${idx}`;
+                playerCard.className = `relative w-full h-full flex flex-col justify-between items-center p-2.5 sm:p-4 glass-panel rounded-2xl shadow-lg overflow-hidden ${numPlayers === 1 ? 'max-w-2xl mx-auto' : ''}`;
+                
+                playerCard.innerHTML = `
+                    <!-- 1. Header Pemain & Skor -->
+                    <div class="w-full flex items-center justify-between glass-header px-2 sm:px-3 py-1.5 rounded-xl shadow-sm z-20 shrink-0">
+                        <div class="flex items-center space-x-1.5 overflow-hidden min-w-0 shrink">
+                            <span class="w-3 h-3 rounded-full ${getPlayerColorClass(idx)} shrink-0"></span>
+                            <span class="player-header font-black text-slate-800 truncate tracking-tight">${player.name}</span>
+                        </div>
+                        <div class="flex items-center space-x-1 bg-amber-200/90 px-2 py-0.5 rounded-full border border-amber-300 shrink-0 ml-1">
+                            <span class="text-xs sm:text-sm">⭐</span>
+                            <span id="score-${idx}" class="score-badge font-black text-amber-900">${player.score}</span>
+                        </div>
+                    </div>
+
+                    <!-- 2. SOAL X / 10 & Pertanyaan Matematika -->
+                    <div class="my-1 sm:my-2 text-center z-20 shrink-0">
+                        <span id="question-count-${idx}" class="question-counter font-black text-sky-100 drop-shadow-[0_1px_2px_rgba(0,0,0,0.8)] block uppercase tracking-wider mb-0.5">SOAL ${player.questionIndex} / 10</span>
+                        <div id="question-${idx}" class="math-question font-black text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.85)] tracking-wide leading-none">
+                            ${player.currentQ.questionText}
+                        </div>
+                    </div>
+
+                    <!-- 3. 4 Daun Jawaban Disusun 2x2 Grid -->
+                    <div class="relative w-full flex flex-col items-center justify-center my-1 sm:my-2 z-25 shrink-0">
+                        <div id="feedback-container-${idx}" class="absolute -top-10 inset-x-0 pointer-events-none flex items-center justify-center z-40 font-black text-lg"></div>
+
+                        <div id="answers-grid-${idx}" class="answers-grid-container grid grid-cols-2 w-full justify-items-center">
+                            ${player.currentQ.choices.map((choice) => createLilyPadButton(idx, choice)).join('')}
+                        </div>
+                    </div>
+
+                    <!-- 4. Katak & Daun Pijakan di Bagian Bawah Kolom -->
+                    <div class="relative w-full frog-arena-container flex items-end justify-center pb-3 sm:pb-4 z-10 shrink-0 mt-auto">
+                        <div class="absolute bottom-2 w-32 sm:w-48 h-8 border-2 border-white/40 rounded-full animate-ping opacity-30"></div>
+
+                        <div class="frog-platform-wrapper relative flex items-center justify-center shrink-0 mb-2">
+                            <svg viewBox="0 0 140 90" class="absolute inset-0 w-full h-full drop-shadow-[0_6px_8px_rgba(2,132,199,0.35)]">
+                                <defs>
+                                    <radialGradient id="frogPadGrad-${idx}" cx="45%" cy="42%" r="55%">
+                                        <stop offset="0%" stop-color="#a7f3d0" />
+                                        <stop offset="35%" stop-color="#4ade80" />
+                                        <stop offset="75%" stop-color="#16a34a" />
+                                        <stop offset="100%" stop-color="#14532d" />
+                                    </radialGradient>
+                                </defs>
+                                <ellipse cx="70" cy="83" rx="58" ry="6.5" fill="#0284c7" opacity="0.28" />
+                                <path d="M 70,42 L 88,15 C 112,20 134,35 133,55 C 132,73 108,85 70,85 C 32,85 7,72 8,52 C 9,32 38,12 68,12 Z" 
+                                      fill="url(#frogPadGrad-${idx})" stroke="#14532d" stroke-width="3" stroke-linejoin="round" />
+                                <path d="M 18,32 C 34,18 56,14 68,12 M 88,15 C 110,19 128,30 130,48" 
+                                      fill="none" stroke="#ffffff" stroke-width="2.2" stroke-linecap="round" opacity="0.5" />
+                                <g stroke="#14532d" stroke-width="1.6" stroke-linecap="round" opacity="0.4">
+                                    <path d="M 70,42 Q 48,25 28,28" fill="none"/>
+                                    <path d="M 70,42 Q 38,45 15,48" fill="none"/>
+                                    <path d="M 70,42 Q 42,66 26,74" fill="none"/>
+                                    <path d="M 70,42 Q 70,68 70,83" fill="none"/>
+                                    <path d="M 70,42 Q 98,68 112,74" fill="none"/>
+                                    <path d="M 70,42 Q 104,50 126,52" fill="none"/>
+                                    <path d="M 70,42 Q 102,30 118,24" fill="none"/>
+                                </g>
+                                <circle cx="70" cy="42" r="3.5" fill="#facc15" stroke="#14532d" stroke-width="1.2" />
+                            </svg>
+
+                            <div id="frog-${idx}" class="frog-character absolute z-30">
+                                <svg viewBox="0 0 200 200" class="w-full h-auto drop-shadow-md">
+                                    <path d="M 30 140 Q 10 160 30 180 Q 60 170 70 145" fill="#22c55e" stroke="#15803d" stroke-width="4"/>
+                                    <path d="M 170 140 Q 190 160 170 180 Q 140 170 130 145" fill="#22c55e" stroke="#15803d" stroke-width="4"/>
+                                    <ellipse cx="100" cy="135" rx="50" ry="40" fill="#4ade80" stroke="#15803d" stroke-width="4"/>
+                                    <ellipse cx="100" cy="142" rx="35" ry="25" fill="#fef08a"/>
+                                    <path d="M 55 130 Q 40 160 50 175" stroke="#15803d" stroke-width="7" stroke-linecap="round" fill="none"/>
+                                    <path d="M 145 130 Q 160 160 150 175" stroke="#15803d" stroke-width="7" stroke-linecap="round" fill="none"/>
+                                    <ellipse cx="100" cy="90" rx="42" ry="32" fill="#4ade80" stroke="#15803d" stroke-width="4"/>
+                                    <circle cx="75" cy="65" r="15" fill="#4ade80" stroke="#15803d" stroke-width="3"/>
+                                    <circle cx="75" cy="65" r="10" fill="#ffffff"/>
+                                    <circle cx="77" cy="65" r="5" fill="#0f172a"/>
+                                    <circle cx="75" cy="62" r="2" fill="#ffffff"/>
+                                    <circle cx="125" cy="65" r="15" fill="#4ade80" stroke="#15803d" stroke-width="3"/>
+                                    <circle cx="125" cy="65" r="10" fill="#ffffff"/>
+                                    <circle cx="127" cy="65" r="5" fill="#0f172a"/>
+                                    <circle cx="125" cy="62" r="2" fill="#ffffff"/>
+                                    <path d="M 78 102 Q 100 120 122 102" fill="#ef4444" stroke="#0f172a" stroke-width="3"/>
+                                    <circle cx="68" cy="98" r="5" fill="#f472b6" opacity="0.8"/>
+                                    <circle cx="132" cy="98" r="5" fill="#f472b6" opacity="0.8"/>
+                                </svg>
+                            </div>
+                        </div>
+                    </div>
+                `;
+
+                grid.appendChild(playerCard);
+            });
+        }
+
+        function handleAnswer(playerIdx, selectedVal, btnElem) {
+            const player = playersState[playerIdx];
+            if (player.isAnimating) return;
+
+            player.isAnimating = true;
+
+            const answersGrid = document.getElementById(`answers-grid-${playerIdx}`);
+            if (answersGrid) {
+                const buttons = answersGrid.querySelectorAll('button');
+                buttons.forEach(btn => {
+                    btn.disabled = true;
+                    btn.style.pointerEvents = 'none';
+                    btn.style.opacity = '0.7';
+                });
+            }
+
+            const frogElem = document.getElementById(`frog-${playerIdx}`);
+            const feedbackContainer = document.getElementById(`feedback-container-${playerIdx}`);
+            const isCorrect = selectedVal === player.currentQ.correctAnswer;
+
+            audio.playJump();
+
+            const frogRect = frogElem.getBoundingClientRect();
+            const btnRect = btnElem.getBoundingClientRect();
+
+            const frogCenterX = frogRect.left + frogRect.width / 2;
+            const frogCenterY = frogRect.top + frogRect.height / 2;
+            const btnCenterX = btnRect.left + btnRect.width / 2;
+            const btnCenterY = btnRect.top + btnRect.height / 2;
+
+            const deltaX = btnCenterX - frogCenterX;
+            const deltaY = isCorrect 
+                ? (btnRect.top + 10) - frogRect.bottom 
+                : btnCenterY - frogCenterY;
+
+            const arcHeight = Math.min(120, Math.max(60, Math.abs(deltaY) * 0.65 + 35));
+
+            frogElem.style.zIndex = '100';
+            frogElem.style.opacity = '1';
+
+            const jumpAnimation = frogElem.animate([
+                { transform: 'translate(0px, 0px) scale(1) rotate(0deg)', opacity: 1, offset: 0 },
+                { 
+                    transform: `translate(${deltaX * 0.45}px, ${deltaY - arcHeight}px) scale(1.25) rotate(${deltaX >= 0 ? 15 : -15}deg)`, 
+                    opacity: 1,
+                    offset: 0.45 
+                },
+                { 
+                    transform: `translate(${deltaX * 0.85}px, ${deltaY - arcHeight * 0.25}px) scale(1.1) rotate(${deltaX >= 0 ? 5 : -5}deg)`, 
+                    opacity: 1,
+                    offset: 0.85 
+                },
+                { transform: `translate(${deltaX}px, ${deltaY}px) scale(1) rotate(0deg)`, opacity: 1, offset: 1 }
+            ], {
+                duration: 650,
+                easing: 'cubic-bezier(0.22, 1, 0.36, 1)',
+                fill: 'forwards'
+            });
+
+            jumpAnimation.onfinish = () => {
+                if (isCorrect) {
+                    audio.playCorrect();
+                    player.score += 10;
+                    player.correctCount++;
+                    document.getElementById(`score-${playerIdx}`).innerText = `${player.score}`;
+
+                    btnElem.classList.add('animate-leaf-success');
+                    
+                    feedbackContainer.innerHTML = `
+                        <div class="flex items-center space-x-1 animate-bounce text-emerald-600 font-black text-xl sm:text-2xl drop-shadow-lg bg-white/95 px-3 py-1 rounded-xl border-2 border-emerald-400 z-50">
+                            <span>BENAR! 🎉</span>
+                        </div>
+                    `;
+
+                    const cheerAnimation = frogElem.animate([
+                        { transform: `translate(${deltaX}px, ${deltaY}px) scale(1) rotate(0deg)`, opacity: 1, offset: 0 },
+                        { transform: `translate(${deltaX}px, ${deltaY - 20}px) scale(1.2) rotate(-10deg)`, opacity: 1, offset: 0.3 },
+                        { transform: `translate(${deltaX}px, ${deltaY - 12}px) scale(1.15) rotate(10deg)`, opacity: 1, offset: 0.6 },
+                        { transform: `translate(${deltaX}px, ${deltaY}px) scale(1) rotate(0deg)`, opacity: 1, offset: 1 }
+                    ], {
+                        duration: 650,
+                        easing: 'ease-in-out',
+                        fill: 'forwards'
+                    });
+
+                    cheerAnimation.onfinish = () => {
+                        setTimeout(() => {
+                            audio.playJump();
+                            const returnJump = frogElem.animate([
+                                { transform: `translate(${deltaX}px, ${deltaY}px) scale(1) rotate(0deg)`, opacity: 1, offset: 0 },
+                                { 
+                                    transform: `translate(${deltaX * 0.55}px, ${deltaY - arcHeight}px) scale(1.2) rotate(${deltaX >= 0 ? -15 : 15}deg)`, 
+                                    opacity: 1,
+                                    offset: 0.45 
+                                },
+                                { 
+                                    transform: `translate(${deltaX * 0.15}px, ${deltaY - arcHeight * 0.3}px) scale(1.05) rotate(${deltaX >= 0 ? -5 : 5}deg)`, 
+                                    opacity: 1,
+                                    offset: 0.85 
+                                },
+                                { transform: 'translate(0px, 0px) scale(1) rotate(0deg)', opacity: 1, offset: 1 }
+                            ], {
+                                duration: 650,
+                                easing: 'cubic-bezier(0.22, 1, 0.36, 1)',
+                                fill: 'forwards'
+                            });
+
+                            returnJump.onfinish = () => {
+                                frogElem.style.transform = 'translate(0px, 0px)';
+                                frogElem.style.opacity = '1';
+                                btnElem.classList.remove('animate-leaf-success');
+                                feedbackContainer.innerHTML = '';
+                                nextQuestion(playerIdx);
+                            };
+                        }, 300);
+                    };
+
+                } else {
+                    btnElem.classList.add('animate-leaf-fail');
+
+                    feedbackContainer.innerHTML = `
+                        <div class="flex items-center space-x-1 text-rose-600 font-black text-xl sm:text-2xl drop-shadow-lg bg-white/95 px-3 py-1 rounded-xl border-2 border-rose-400 animate-pulse z-50">
+                            <span>SALAH! 😅</span>
+                        </div>
+                    `;
+
+                    const wobbleAnimation = frogElem.animate([
+                        { transform: `translate(${deltaX}px, ${deltaY}px) rotate(0deg)`, opacity: 1, offset: 0 },
+                        { transform: `translate(${deltaX + 6}px, ${deltaY - 4}px) rotate(22deg)`, opacity: 1, offset: 0.4 },
+                        { transform: `translate(${deltaX - 6}px, ${deltaY + 4}px) rotate(-22deg)`, opacity: 1, offset: 0.8 },
+                        { transform: `translate(${deltaX}px, ${deltaY}px) rotate(35deg)`, opacity: 1, offset: 1 }
+                    ], {
+                        duration: 400,
+                        easing: 'ease-in-out',
+                        fill: 'forwards'
+                    });
+
+                    wobbleAnimation.onfinish = () => {
+                        audio.playSplash();
+                        player.wrongCount++;
+                        createSplashEffect(btnElem);
+
+                        const sinkAnimation = frogElem.animate([
+                            { transform: `translate(${deltaX}px, ${deltaY}px) scale(1) rotate(35deg)`, opacity: 1, offset: 0 },
+                            { transform: `translate(${deltaX}px, ${deltaY + 35}px) scale(0.7) rotate(65deg)`, opacity: 0.7, offset: 0.5 },
+                            { transform: `translate(${deltaX}px, ${deltaY + 65}px) scale(0.2) rotate(110deg)`, opacity: 0, offset: 1 }
+                        ], {
+                            duration: 550,
+                            easing: 'ease-in',
+                            fill: 'forwards'
+                        });
+
+                        sinkAnimation.onfinish = () => {
+                            setTimeout(() => {
+                                audio.playJump();
+                                const returnFromWater = frogElem.animate([
+                                    { transform: `translate(${deltaX}px, ${deltaY + 50}px) scale(0.4) rotate(0deg)`, opacity: 0, offset: 0 },
+                                    { transform: `translate(${deltaX * 0.5}px, ${deltaY * 0.5 - arcHeight}px) scale(1.15) rotate(${deltaX >= 0 ? -12 : 12}deg)`, opacity: 1, offset: 0.5 },
+                                    { transform: 'translate(0px, 0px) scale(1) rotate(0deg)', opacity: 1, offset: 1 }
+                                ], {
+                                    duration: 650,
+                                    easing: 'cubic-bezier(0.22, 1, 0.36, 1)',
+                                    fill: 'forwards'
+                                });
+
+                                returnFromWater.onfinish = () => {
+                                    frogElem.style.transform = 'translate(0px, 0px)';
+                                    frogElem.style.opacity = '1';
+                                    btnElem.classList.remove('animate-leaf-fail');
+                                    feedbackContainer.innerHTML = '';
+                                    nextQuestion(playerIdx);
+                                };
+                            }, 250);
+                        };
+                    };
+                }
+            };
+        }
+
+        function nextQuestion(playerIdx) {
+            const player = playersState[playerIdx];
+            player.questionIndex++;
+
+            if (player.questionIndex > MAX_QUESTIONS_PER_ROUND) {
+                checkEndGame();
+                return;
+            }
+
+            player.currentQ = generateMathQuestion();
+            player.isAnimating = false;
+
+            const qCountElem = document.getElementById(`question-count-${playerIdx}`);
+            if (qCountElem) {
+                qCountElem.innerText = `SOAL ${player.questionIndex} / ${MAX_QUESTIONS_PER_ROUND}`;
+            }
+            document.getElementById(`question-${playerIdx}`).innerText = player.currentQ.questionText;
+            
+            const answersGrid = document.getElementById(`answers-grid-${playerIdx}`);
+            answersGrid.innerHTML = player.currentQ.choices.map((choice) => createLilyPadButton(playerIdx, choice)).join('');
+        }
+
+        function checkEndGame() {
+            const allFinished = playersState.every(p => p.questionIndex > MAX_QUESTIONS_PER_ROUND);
+            if (allFinished) {
+                renderResultsScreen();
+                showScreen('screen-results');
+            }
+        }
+
+        function renderResultsScreen() {
+            const container = document.getElementById('results-container');
+            container.innerHTML = '';
+
+            const sorted = [...playersState].sort((a, b) => b.score - a.score);
+
+            sorted.forEach((p, rank) => {
+                const total = p.correctCount + p.wrongCount;
+                const accuracy = total > 0 ? Math.round((p.correctCount / total) * 100) : 0;
+                
+                const card = document.createElement('div');
+                card.className = "p-4 rounded-2xl bg-sky-50 border-2 border-sky-200 shadow-sm flex flex-col justify-between text-left";
+                card.innerHTML = `
+                    <div class="flex items-center justify-between border-b pb-2 mb-2 border-sky-200">
+                        <div class="flex items-center space-x-2">
+                            <span class="text-xl font-black text-amber-500">#${rank + 1}</span>
+                            <span class="font-bold text-slate-800">${p.name}</span>
+                        </div>
+                        <span class="px-3 py-1 rounded-full bg-emerald-500 text-white font-black text-sm">${p.score} Poin</span>
+                    </div>
+                    <div class="grid grid-cols-3 gap-2 text-center text-xs sm:text-sm font-semibold text-slate-600">
+                        <div class="bg-white p-2 rounded-xl border">
+                            <span class="block text-emerald-600 font-bold">${p.correctCount}</span> Benar
+                        </div>
+                        <div class="bg-white p-2 rounded-xl border">
+                            <span class="block text-rose-500 font-bold">${p.wrongCount}</span> Salah
+                        </div>
+                        <div class="bg-white p-2 rounded-xl border">
+                            <span class="block text-sky-600 font-bold">${accuracy}%</span> Akurasi
+                        </div>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        function restartCurrentGame() {
+            startGame(currentGameMode);
+        }
+
+        function confirmReturnHome() {
+            showScreen('screen-menu');
+        }
+
+        function showScreen(screenId) {
+            ['screen-menu', 'screen-gameplay', 'screen-results'].forEach(id => {
+                const elem = document.getElementById(id);
+                if (id === screenId) {
+                    elem.classList.remove('hidden');
+                } else {
+                    elem.classList.add('hidden');
+                }
+            });
+        }
+
+        function toggleHowToPlayModal() {
+            const modal = document.getElementById('modal-howto');
+            modal.classList.toggle('hidden');
+        }
+
+        function toggleFullScreen() {
+            if (!document.fullscreenElement) {
+                document.documentElement.requestFullscreen().catch(err => {
+                    console.log(`Fullscreen failed: ${err.message}`);
+                });
+            } else {
+                if (document.exitFullscreen) {
+                    document.exitFullscreen();
+                }
+            }
+        }
+
+        window.onload = function() {
+            startRainLoop();
+        };
+    </script>
+</body>
+</html>
